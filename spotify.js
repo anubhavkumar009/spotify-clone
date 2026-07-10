@@ -23,53 +23,31 @@ function secondsToMinutesSeconds(seconds) {
 async function getSongs(folder) {
     currfolder = folder;
 
-    let a = await fetch(`/assets/${folder}/`);
-    let response = await a.text();
+    let response = await fetch(`/assets/${folder}/songs.json`);
+    songs = await response.json();
 
-    let div = document.createElement("div");
-    div.innerHTML = response;
-
-    let as = div.getElementsByTagName("a");
-
-    songs = [];
-
-    for (let index = 0; index < as.length; index++) {
-        let element = as[index];
-        let href = element.getAttribute("href");
-
-        if (href && href.endsWith(".mp3")) {
-            href = decodeURIComponent(href);
-            href = href.replace(/\\/g, "/");
-
-            let file = href.split("/").pop();
-            songs.push(file);
-        }
-    }
-
-
-    //Show all songs in the playlist
-    let songUL = document.querySelector(".songlist").getElementsByTagName("ul")[0];
+    let songUL = document.querySelector(".songlist ul");
     songUL.innerHTML = "";
+
     for (const song of songs) {
-        songUL.innerHTML = songUL.innerHTML + `<li><img class="invert" src="assets/music.svg" alt="">
-                                                    <div class="info">
-                                                        <div>${decodeURI(song)}</div>
-                                                        <div>Anubhav</div>
-                                                    </div>
-                                                    <div>
-                                                        <span>play now</span>
-                                                        <span><img class="invert" src="assets/play.svg" alt=""></span>
-                                                    </div>
-                                                </li>`;
+        songUL.innerHTML += `<li>
+            <img class="invert" src="assets/music.svg" alt="">
+            <div class="info">
+                <div>${decodeURI(song)}</div>
+                <div>Anubhav</div>
+            </div>
+            <div>
+                <span>play now</span>
+                <span><img class="invert" src="assets/play.svg" alt=""></span>
+            </div>
+        </li>`;
     }
 
-    // Attach Eventlistner to each Song
-    Array.from(document.querySelector(".songlist").getElementsByTagName("li")).forEach(e => {
-        e.addEventListener("click", element => {
-            playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim())
-
-        })
-    })
+    Array.from(songUL.getElementsByTagName("li")).forEach(e => {
+        e.addEventListener("click", () => {
+            playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim());
+        });
+    });
 
     return songs;
 }
