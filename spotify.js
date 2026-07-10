@@ -53,34 +53,6 @@ async function getSongs(folder) {
     return songs;
 }
 
-
-    //Show all songs in the playlist
-    let songUL = document.querySelector(".songlist").getElementsByTagName("ul")[0];
-    songUL.innerHTML = "";
-    for (const song of songs) {
-        songUL.innerHTML = songUL.innerHTML + `<li><img class="invert" src="assets/music.svg" alt="">
-                                                    <div class="info">
-                                                        <div>${decodeURI(song)}</div>
-                                                        <div>Anubhav</div>
-                                                    </div>
-                                                    <div>
-                                                        <span>play now</span>
-                                                        <span><img class="invert" src="assets/play.svg" alt=""></span>
-                                                    </div>
-                                                </li>`;
-    }
-
-    // Attach Eventlistner to each Song
-    Array.from(document.querySelector(".songlist").getElementsByTagName("li")).forEach(e => {
-        e.addEventListener("click", element => {
-            playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim())
-
-        })
-    })
-
-    return songs;
-}
-
 const playMusic = (track, pause = false) => {
     currentSong.src = `/assets/${currfolder}/` + track;
     if (!pause) {
@@ -161,17 +133,6 @@ async function displayAlbum() {
             updateFolderButtons();
         });
     });
-}
-
-    // Load the playlist whenever card is clicked
-    Array.from(document.getElementsByClassName("card")).forEach(e => {
-        e.addEventListener("click", async item => {
-            currentFolderIndex = folders.indexOf(item.currentTarget.dataset.folder);
-            songs = await getSongs(`songs/${folders[currentFolderIndex]}`);
-            playMusic(songs[0]);
-            updateFolderButtons();
-        })
-    })
 }
 
 async function main()
