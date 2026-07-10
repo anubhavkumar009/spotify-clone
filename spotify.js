@@ -93,47 +93,45 @@ function updateFolderButtons()
 
 // Display all the Albums on the page
 async function displayAlbum() {
-    let a = await fetch(`/assets/songs/`);
-    let response = await a.text();
 
-    let div = document.createElement("div");
-    div.innerHTML = response;
-    let cardcontainer = document.querySelector(".cardContainer")
-    let anchors = div.getElementsByTagName("a")
-    let array = Array.from(anchors)
-    for (let i = 0; i < array.length; i++) {
-        const e = array[i];
-        e.href = decodeURI(e.href);
-        if (e.href.includes("/songs/") && !e.href.includes(".htaccess")) {
-            let folder = e.href.split("/").slice(-2)[0];
-            folders.push(folder);
+    let response = await fetch("/assets/songs/songs.json");
+    folders = await response.json();
 
-            if (firstFolder == null)
-                firstFolder = folder;
+    let cardcontainer = document.querySelector(".cardContainer");
+    cardcontainer.innerHTML = "";
 
-            let a = await fetch(`/assets/songs/${folder}/info.json`);
-            let response = await a.json();
-            console.log(response);
-            cardcontainer.innerHTML = cardcontainer.innerHTML + `<div  data-folder="${folder}" class="card">
-                        <div class="play">
-                            <img src="assets/play.svg" alt="">
-                        </div>
-                        <img src="/assets/songs/${folder}/Cover.jpg"  alt="">
-                        <h2>${response.title}</h2>
-                        <p>${response.description}</p>
-                    </div>`;
-        }
+    firstFolder = folders[0];
+
+    for (const folder of folders) {
+
+        let info = await fetch(`/assets/songs/${folder}/info.json`);
+        let data = await info.json();
+
+        cardcontainer.innerHTML += `
+        <div data-folder="${folder}" class="card">
+            <div class="play">
+                <img src="assets/play.svg" alt="">
+            </div>
+
+            <img src="/assets/songs/${folder}/Cover.jpg" alt="">
+
+            <h2>${data.title}</h2>
+            <p>${data.description}</p>
+        </div>`;
     }
 
-    // Load the playlist whenever card is clicked
-    Array.from(document.getElementsByClassName("card")).forEach(e => {
-        e.addEventListener("click", async item => {
-            currentFolderIndex = folders.indexOf(item.currentTarget.dataset.folder);
+    Array.from(document.getElementsByClassName("card")).forEach(card => {
+        card.addEventListener("click", async e => {
+
+            currentFolderIndex = folders.indexOf(e.currentTarget.dataset.folder);
+
             songs = await getSongs(`songs/${folders[currentFolderIndex]}`);
+
             playMusic(songs[0]);
+
             updateFolderButtons();
-        })
-    })
+        });
+    });
 }
 
 async function main()
